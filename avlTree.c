@@ -3,40 +3,103 @@
 #include "avlTree.h"
 #include "stringBuilder.h"
 
+int height(avlTreeNode* N)
+{
+  if(N == NULL)
+    return 0;
+  return N->height;
+}
+
+int GetBalance(struct avlTreeNode* N)
+{
+  if(N == NULL)
+    return 0;
+  return height(N->left) - height(N->right);
+}
+
+static int Max(int a, int b)
+{
+  return (a > b) ? a : b;
+}
+
+static avlTreeNode* RightRotate(avlTreeNode* y)
+{
+  avlTreeNode* x = y->left;
+  avlTreeNode* T2 = x->right;
+
+  // Perform rotation
+  x->right = y;
+  y->left = T2;
+
+  // Update heights
+  y->height = Max(height(y->left), height(y->right)) + 1;
+  x->height = Max(height(x->left), height(x->right)) + 1;
+
+  // Return new root
+  return x;
+}
+
+static avlTreeNode* LeftRotate(avlTreeNode* x)
+{
+  avlTreeNode* y = x->right;
+  avlTreeNode* T2 = y->left;
+
+  // Perform rotation
+  y->left = x;
+  x->right = T2;
+
+  // Update heights
+  x->height = Max(height(x->left), height(x->right)) + 1;
+  y->height = Max(height(y->left), height(y->right)) + 1;
+
+  // Return new Root
+  return y;
+}
+
 static avlTreeNode* Add(avlTreeNode* subtree, int value)
 {
-  if(subtree == NULL) return NULL;
-
-  if(value == subtree->value) return subtree;
+  if(subtree == NULL) return avlTreeAPI.Constructor(value);
 
   if(value < subtree->value)
+    subtree->left = Add(subtree->left, value);
+  else if(value > subtree->value)
+    subtree->right = Add(subtree->right, value);
+  else // No equal values
+    return subtree;
+
+  // Update height of this ancestor node
+  subtree->height = 1 + Max(height(subtree->left), height(subtree->right));
+
+  // Get the balance factor of this ancestor
+  // node to check whether this node became unbalanced
+  int balance = GetBalance(subtree);
+
+  // If this node becomes unbalanced,
+  // then there are 4 cases
+
+  // Left Left Case
+  if(balance > 1 && value < subtree->left->value)
+    return RightRotate(subtree);
+
+  // Right Right Case
+  if(balance < -1 && value > subtree->right->value)
+    return LeftRotate(subtree);
+
+  // Left Right Case
+  if(balance > 1 && value > subtree->left->value)
   {
-    if(subtree->left == NULL)
-    {
-      subtree->left = (avlTreeNode*)malloc(sizeof(avlTreeNode));
-      subtree->left->value = value;
-      subtree->left->left = NULL;
-      subtree->left->right = NULL;
-    }
-    else
-    {
-      return Add(subtree->left, value);
-    }
+    subtree->left = LeftRotate(subtree->left);
+    return RightRotate(subtree);
   }
-  else
+
+  // Right Left Case
+  if(balance < -1 && value < subtree->right->value)
   {
-    if(subtree->right == NULL)
-    {
-      subtree->right = (avlTreeNode*)malloc(sizeof(avlTreeNode));
-      subtree->right->value = value;
-      subtree->right->left = NULL;
-      subtree->right->right = NULL;
-    }
-    else
-    {
-      return Add(subtree->right, value);
-    }
+    subtree->right = RightRotate(subtree->right);
+    return LeftRotate(subtree);
   }
+
+  // return the (unchanged) node pointer
   return subtree;
 }
 
@@ -119,6 +182,7 @@ avlTreeNode* Constructor(int value)
   temporary->left = NULL;
   temporary->right = NULL;
   temporary->value = value;
+  temporary->height = 1;
 
   return temporary;
 }

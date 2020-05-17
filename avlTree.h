@@ -8,6 +8,7 @@ typedef struct avlTreeNode{
   int value;
   struct avlTreeNode* left;
   struct avlTreeNode* right;
+  int height;
 } avlTreeNode;
 
 typedef struct avlTreeAPIStruct {
