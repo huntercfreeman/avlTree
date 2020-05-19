@@ -61,7 +61,7 @@ static stringBuilder* AppendInt(stringBuilder *stringBuilder, int value)
   snprintf(stringBuilder->string + stringBuilder->length, remainingSpace + stringBuilder->length, "%d", value);
   stringBuilder->length += argumentLength;
 
-  return stringBuilder; 
+  return stringBuilder;
 }
 
 static stringBuilder* Constructor()

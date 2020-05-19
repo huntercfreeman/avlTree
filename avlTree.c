@@ -3,14 +3,25 @@
 #include "avlTree.h"
 #include "stringBuilder.h"
 
-int height(avlTreeNode* N)
+static avlTreeNode* MinValueNode(avlTreeNode* subtree)
+{
+  avlTreeNode* current = subtree;
+
+  /* loop down to find the leftmost leaf */
+  while(current->left != NULL)
+    current = current->left;
+
+  return current;
+}
+
+static int height(avlTreeNode* N)
 {
   if(N == NULL)
     return 0;
   return N->height;
 }
 
-int GetBalance(struct avlTreeNode* N)
+static int GetBalance(avlTreeNode* N)
 {
   if(N == NULL)
     return 0;
@@ -105,7 +116,91 @@ static avlTreeNode* Add(avlTreeNode* subtree, int value)
 
 static avlTreeNode* Remove(avlTreeNode* subtree, int value)
 {
+  // STEP 1: Perform standard BST DELETE
+  if(subtree == NULL) return NULL;
 
+  // If the key to be deleted is smaller than the
+  // root's key, then it lies in the left subtree
+  if(value < subtree->value)
+    subtree->left = Remove(subtree->left, value);
+
+  // If the key to be deleted is greater than the
+  // rot's key, then it lies in the right subtree
+  else if(value > subtree->value)
+    subtree->right = Remove(subtree->right, value);
+
+  // if the key is same as root's key, then This is
+  // the node to be deleted
+  else
+  {
+    // node with only one child or no child
+    if( (subtree->left == NULL) || (subtree->right == NULL) )
+    {
+      avlTreeNode* temporary = subtree->left ? subtree->left :
+                                                subtree->right;
+
+      // No child case
+      if(temporary == NULL)
+      {
+        temporary = subtree;
+        subtree = NULL;
+      }
+      else // One child case
+        *subtree = *temporary; // Copy the contents of
+                        // the non-tempy child
+
+      free(temporary);
+    }
+    else
+    {
+      // node with two children: Get the Inorder
+      // successor (smallest in the right subtree)
+      avlTreeNode* temporary = MinValueNode(subtree->right);
+
+      // Copy the inorder successor's data to this node
+      subtree->value = temporary->value;
+
+      // Delete the inorder successor
+      subtree->right = Remove(subtree->right, temporary->value);
+    }
+  }
+
+  // If the tree had only one node then Return
+  if(subtree == NULL)
+    return subtree;
+
+  // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
+  subtree->height = 1 + Max(height(subtree->left), height(subtree->right));
+
+  // STEP 3: Get the balance factor of this node (to
+  // check whether this node became unbalanced)
+  int balance = GetBalance(subtree);
+
+  // If this node becomes unbalanced, then there are 4 cases
+
+  // Left Left case
+  if(balance > 1 && GetBalance(subtree->left) >= 0)
+    return RightRotate(subtree);
+
+  // Left Right case
+  if(balance > 1 && GetBalance(subtree->left) < 0)
+  {
+    subtree->left = LeftRotate(subtree->left);
+    return RightRotate(subtree);
+  }
+
+  // Right Right Case
+  if(balance < -1 && GetBalance(subtree->right) <= 0)
+    return LeftRotate(subtree);
+
+  // Right Left Case
+  if(balance < -1 && GetBalance(subtree->right) > 0)
+  {
+    subtree->right = RightRotate(subtree->right);
+    return LeftRotate(subtree);
+  }
+
+  return subtree;
 }
 
 static void Print(avlTreeNode* subtree)

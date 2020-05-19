@@ -11,12 +11,25 @@ void Dump(avlTreeNode* temporary)
 
 int main()
 {
-  avlTreeNode* temporary = avlTreeAPI.Constructor(5);
-  Dump(temporary);
+  avlTreeNode* temporaryOne = avlTreeAPI.Constructor(5);
+  Dump(temporaryOne);
 
-  temporary = avlTreeAPI.Add(temporary, 10);
-  Dump(temporary);
+  temporaryOne = avlTreeAPI.Add(temporaryOne, 10);
+  Dump(temporaryOne);
 
-  temporary = avlTreeAPI.Add(temporary, 2);
-  Dump(temporary);
+  temporaryOne = avlTreeAPI.Add(temporaryOne, 2);
+  Dump(temporaryOne);
+
+  avlTreeNode* temporaryTwo = avlTreeAPI.Constructor(1);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 2);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 3);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 4);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 5);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 6);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 7);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 8);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 9);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 10);
+  temporaryTwo = avlTreeAPI.Add(temporaryTwo, 11);
+  Dump(temporaryTwo);
 }
